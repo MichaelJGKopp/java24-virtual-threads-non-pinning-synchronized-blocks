@@ -13,7 +13,6 @@ public class Application {
     private static final long BLOCKING_TIME_MS = 5; // Shorter sleep inside lock
     private static final int CPU_WORK_ITERATIONS = 10000; // Work *outside* lock
 
-    private static final Object lock = new Object();
     private static final AtomicInteger completedTasks = new AtomicInteger(0);
     private static volatile double busyWorkSink = 0; // To prevent dead code elimination
 
@@ -28,6 +27,8 @@ public class Application {
     }
 
     public static void main(String[] args) throws InterruptedException {
+        System.setProperty("jdk.virtualThreadScheduler.parallelism", "1");
+
         System.out.println("Running with Java version: " + System.getProperty("java.version"));
         System.out.printf("Launching %,d virtual threads...\n", NUM_THREADS);
         System.out.printf("Each thread does CPU work (%,d iterations), then acquires lock and blocks for %d ms.\n",
@@ -39,6 +40,7 @@ public class Application {
             Instant start = Instant.now();
 
             for (int i = 0; i < NUM_THREADS; i++) {
+                final Object lock = new Object();
                 executor.submit(() -> {
                     try {
                         // This work can run concurrently if carrier threads are available.
