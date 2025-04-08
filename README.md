@@ -42,3 +42,22 @@ Total execution time: 31.592 seconds
 ----------------------------------------
 ```
 
+## Update
+
+Thank you to Alexander (alexander-shustanov) who provided a PR to fix this on GitHub
+
+
+https://github.com/danvega/pinning/pull/2
+
+Hi! Thank you for your highlight. But it sounds like I found a mistake in your code.
+
+Take another look at your synchronized block. It captures the monitor of the lock object. synchronized guarantees that the code inside the block will be executed by only one thread at a time, from start to finish.
+
+Therefore, regardless of pinning, each Thread.sleep() is executed exclusively.
+
+However, if you capture a different monitor each time (i.e., use a different lock object per task), you'll notice a significant difference — the performance can improve by an order of magnitude.
+
+Please, look at my fixes there:
+https://github.com/spring-aio/java24-pinning/blob/master/src/main/java/dev/danvega/Application.java#L43
+
+I create new lock every time. So, for java 21, it works the same as in your code, due to carrier thread pinning (34.688 seconds for me). But for java 24 there is no pinning and the code is executed immediately (0.633 seconds for me).
