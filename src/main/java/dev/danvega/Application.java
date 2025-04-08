@@ -40,7 +40,7 @@ public class Application {
             Instant start = Instant.now();
 
             for (int i = 0; i < NUM_THREADS; i++) {
-                final Object lock = new Object();
+                final Object lock = new Object(); // the key to this performance test - thank you alexander-shustanov
                 executor.submit(() -> {
                     try {
                         // This work can run concurrently if carrier threads are available.
