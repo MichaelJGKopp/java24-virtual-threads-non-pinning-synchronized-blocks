@@ -39,10 +39,15 @@ public class Application {
 
             Instant start = Instant.now();
 
+            AtomicInteger threadCount = new AtomicInteger(0);
+
             for (int i = 0; i < NUM_THREADS; i++) {
                 final Object lock = new Object(); // the key to this performance test - thank you alexander-shustanov
                 executor.submit(() -> {
                     try {
+                        int threadCountInt = threadCount.incrementAndGet();
+                        System.out.print((threadCountInt % 500 == 0)
+                                ? ("Thread started: " + Thread.currentThread() + "\n") : "");
                         // This work can run concurrently if carrier threads are available.
                         doCpuWork();
                         synchronized (lock) {
